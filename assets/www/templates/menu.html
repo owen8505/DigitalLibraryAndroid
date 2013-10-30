@@ -1,0 +1,46 @@
+<div id="topMenu">
+	<div id="topMenu-bar">
+		<div class="title">SecureGOV</div>
+		<div id="menu-btn-container">
+            <div id="menu-btn" ng-click="showMenu()">
+                Menu
+            </div>
+        </div>
+	</div>
+	<div id="topMenu-right" ng-show="data.showMenu">
+		<ul class="nav-department">
+			<li ng-click="searchDocumentFolder(0, 'Last Reviewed')">
+				<span><span class="icon-bookmark"></span> Last Reviewed</span>
+			</li>
+            <li ng-click="getMyDocuments()">
+                <span><span class="icon-books"></span> My Documents</span>
+            </li>
+			<li ng-repeat="department in menu" ng-hide="department.functionalArea.length == 0">
+                <hr class="separator-1">
+				<span><span class="icon-books"></span> {{department.name}}</span>
+				<ul class="nav-functional-area">
+					<li ng-repeat="fa in department.functionalArea">
+						<div ng-click="searchDocumentFolder(fa.id, fa.name, fa.url)">{{fa.name}}</div>
+					</li>
+				</ul>
+			</li>                 
+		</ul>
+	</div>
+</div>
+
+<!--aside id="navigation" class="hide-for-small">
+	<hr class="separator-1">
+	<nav>
+		<ul class="nav-department">
+			<li><span class="icon-star"></span> Last Reviewed2</li>
+			<li ng-repeat="department in menu" ng-hide="department.functionalArea.length == 0">
+				<span class="icon-books"></span> {{department.name}}
+				<ul class="nav-functional-area">
+					<li ng-repeat="fa in department.functionalArea">
+                        <div ng-click="searchDocumentFolder(fa.id, fa.name)">{{fa.name}}</div>
+                    </li>
+				</ul>
+			</li>
+		</ul>
+	</nav>
+</aside-->
