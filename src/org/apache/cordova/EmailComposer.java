@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.Html;
 
 import org.apache.cordova.api.CallbackContext;
@@ -138,8 +139,11 @@ public class EmailComposer extends CordovaPlugin {
 				//convert from paths to Android friendly Parcelable Uri's
 				for (int i=0; i<attachments.length(); i++) {
 					try {
-						File file = new File(attachments.getString(i));
+						String directory = Environment.getExternalStorageDirectory().toString();
+						File file = new File(directory + attachments.getString(i));
+						LOG.e("EmailComposer", "File: " + file);
 						if (file.exists()) {
+							LOG.e("EmailComposer", "SI EXISTE");
 							Uri uri = Uri.fromFile(file);
 							uris.add(uri);
 						}

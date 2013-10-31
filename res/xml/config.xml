@@ -104,6 +104,12 @@
     <feature name="EmailComposer">
       <param name="android-package" value="org.apache.cordova.EmailComposer"/>
     </feature>
+    <feature name="FileWriter">
+      <param name="android-package" value="org.apache.cordova.FileWriter"/>
+    </feature>
+    <feature name="FileOpener">
+      <param name="android-package" value="org.apache.cordova.FileOpener"/>
+    </feature>
     <!-- Deprecated plugins element. Remove in 3.0 -->
     <plugins>
     </plugins>

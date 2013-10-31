@@ -183,7 +183,7 @@ angular.module('App.controllers', ['ngResource'])
 		var documentsTemp = {};
 		for (var i = 0; i < documentsToVerify.length; i++) {
 			var tempId = 'document_' + documentsToVerify[i].id;
-			var url = 'file://' + pathTemp + documentsToVerify[i].serverRelativeUrl;
+			var url = pathTemp + documentsToVerify[i].serverRelativeUrl;
 			var name = url.replace(/^.*[\\\/]/, '');
 			documentsTemp[name] = documentsToVerify[i].id;
 			windowRef.resolveLocalFileSystemURI(
@@ -198,7 +198,9 @@ angular.module('App.controllers', ['ngResource'])
 						}
 					}
 				},
-				function(error) {});
+				function(error) {
+					//alert('No encontrado: ' + error);
+				});
 		}
 	}
 	/** Verifica documentos locales **/
@@ -373,24 +375,6 @@ angular.module('App.controllers', ['ngResource'])
 	
 	/** Descarga archivo **/
 	$scope.downloadFile = function (path, serverUrl, documentHTML) {
-        var fileTransfer = new FileTransfer();
-		fileTransfer.download(
-			"http://sap.mexusbio.org/DigitalLibraryServices/SharePointDataAccess.svc/Document?d=" + encodeURI(serverUrl),
-			path + serverUrl,
-			function(theFile) {
-				documentHTML.removeClass('downloading');
-				documentHTML.addClass('local');
-                $scope.verifyDocuments($window, $scope.elements);
-			},
-			function(error) {
-				alert("Download error: " + JSON.stringify(error));
-				documentHTML.removeClass('downloading');
-                console.log("ERROR: " + error);
-				console.log("download error source " + error.source);
-				console.log("download error target " + error.target);
-				console.log("upload error code: " + error.code);
-			}
-		);
 		var deferred = $q.defer();
 			var LibraryService = $resource(
 				"http://sap.mexusbio.org/DigitalLibraryServices/SharePointDataAccess.svc/Document?d=:d",
@@ -412,8 +396,8 @@ angular.module('App.controllers', ['ngResource'])
 					var byteArray = event.GetDocumentResult;
 					if (byteArray.length > 0) {
 						var parametros = {};
-                        parametros['fileName'] = path + serverUrl;
-						parametros['byteArray'] = byteArray;
+                        parametros.fileName = serverUrl;
+						parametros.byteArray = byteArray;
 						
 						cordova.exec(
 							// Register the callback handler
@@ -422,11 +406,11 @@ angular.module('App.controllers', ['ngResource'])
 								documentHTML.addClass('local');
 								$scope.showOptionsID = -1;
                 				$scope.data.showDocumentOptions = false;
-                				$scope.verifyLocalDocuments();
+                				$scope.verifyDocuments($window, $scope.elements);
             				},
             				// Register the errorHandler
             				function errorHandler(err) {
-            					alert("Error converting string to file.");
+            					alert("Error downloading the file. Try again.");
 								documentHTML.removeClass('downloading');
 							},
 							// Define what class to route messages to
@@ -434,7 +418,7 @@ angular.module('App.controllers', ['ngResource'])
 							// Execute this method on the above class
 							'cordovaSetFileContents',
 							// An array containing one String (our newly created Date String).
-							[JSON.stringify(parametros)]
+							[parametros]
 						);
 					} else {
 						documentHTML.removeClass('downloading');
@@ -455,14 +439,14 @@ angular.module('App.controllers', ['ngResource'])
 			// Ignores click
 		} else if (documentHTML.hasClass('local')) {
 			if ($scope.data.isCache('file_path')) {
-				//alert('Opening file: ' + $scope.data.getCache('file_path') + document.serverRelativeUrl);
-				$window.open($scope.data.getCache('file_path') + encodeURI(document.serverRelativeUrl), '_blank');
-				//$window.location.href = $scope.data.getCache('file_path') + document.serverRelativeUrl;
+				$window.plugins.fileOpener.open($scope.data.getCache('file_path') + encodeURI(document.serverRelativeUrl));
+				
+				//$window.open($scope.data.getCache('file_path') + encodeURI(document.serverRelativeUrl), '_blank');
 			} else {
 				$scope.updatePath($window, function () {
-					//alert('Opening file: ' + $scope.data.getCache('file_path') + document.serverRelativeUrl);
-					$window.open($scope.data.getCache('file_path') + encodeURI(document.serverRelativeUrl), '_blank');
-					//$window.location.href = $scope.data.getCache('file_path') + document.serverRelativeUrl;
+					$window.plugins.fileOpener.open($scope.data.getCache('file_path') + encodeURI(document.serverRelativeUrl));
+					
+					//$window.open($scope.data.getCache('file_path') + encodeURI(document.serverRelativeUrl), '_blank');
 				});
 			}
 			
@@ -537,8 +521,8 @@ angular.module('App.controllers', ['ngResource'])
     }
             
     $scope.sendMail = function() {
-        //window.plugins.emailComposer.showEmailComposerWithCallback(function(result){console.log(result);},"Document shared - " + $scope.data.selectedDocument.name,"I would like to share a document with you",[],[],[],false,[$scope.data.getCache('file_path') + $scope.data.selectedDocument.serverRelativeUrl]);
-        window.plugins.emailComposer.showEmailComposerWithCallback(function(result){console.log(result);},"Document shared - " + $scope.data.selectedDocument.name,"I would like to share a document with you",[],[],[],false);
+        window.plugins.emailComposer.showEmailComposerWithCallback(function(result){console.log(result);},"Document shared - " + $scope.data.selectedDocument.name,"I would like to share a document with you",[],[],[],false,[$scope.data.selectedDocument.serverRelativeUrl]);
+        //window.plugins.emailComposer.showEmailComposerWithCallback(function(result){console.log(result);},"Document shared - " + $scope.data.selectedDocument.name,"I would like to share a document with you",[],[],[],false);
     }
                             
     $scope.back = function(){
